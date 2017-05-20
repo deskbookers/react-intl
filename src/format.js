@@ -189,50 +189,15 @@ export function formatMessage(config, state, messageDescriptor = {}, values = {}
     // `id` is a required field of a Message Descriptor.
     invariant(id, '[React Intl] An `id` must be provided to format a message.');
 
-    const message   = messages && messages[id];
     const hasValues = Object.keys(values).length > 0;
 
     // Avoid expensive message formatting for simple messages without values. In
     // development messages will always be formatted in case of missing values.
     if (!hasValues && process.env.NODE_ENV === 'production') {
-        return message || defaultMessage || id;
+        return defaultMessage || id;
     }
 
-    let formattedMessage;
-
-    if (message) {
-        try {
-            let formatter = state.getMessageFormat(
-                message, locale, formats
-            );
-
-            formattedMessage = formatter.format(values);
-        } catch (e) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error(
-                    `[React Intl] Error formatting message: "${id}" for locale: "${locale}"` +
-                    (defaultMessage ? ', using default message as fallback.' : '') +
-                    `\n${e}`
-                );
-            }
-        }
-    } else {
-        if (process.env.NODE_ENV !== 'production') {
-            // This prevents warnings from littering the console in development
-            // when no `messages` are passed into the <IntlProvider> for the
-            // default locale, and a default message is in the source.
-            if (!defaultMessage ||
-                (locale && locale.toLowerCase() !== defaultLocale.toLowerCase())) {
-
-                console.error(
-                    `[React Intl] Missing message: "${id}" for locale: "${locale}"` +
-                    (defaultMessage ? ', using default message as fallback.' : '')
-                );
-            }
-        }
-    }
-
-    if (!formattedMessage && defaultMessage) {
+    if (defaultMessage) {
         try {
             let formatter = state.getMessageFormat(
                 defaultMessage, defaultLocale, defaultFormats
@@ -253,12 +218,12 @@ export function formatMessage(config, state, messageDescriptor = {}, values = {}
         if (process.env.NODE_ENV !== 'production') {
             console.error(
                 `[React Intl] Cannot format message: "${id}", ` +
-                `using message ${message || defaultMessage ? 'source' : 'id'} as fallback.`
+                `using message ${defaultMessage ? 'source' : 'id'} as fallback.`
             );
         }
     }
 
-    return formattedMessage || message || defaultMessage || id;
+    return formattedMessage || defaultMessage || id;
 }
 
 export function formatHTMLMessage(config, state, messageDescriptor, rawValues = {}) {
