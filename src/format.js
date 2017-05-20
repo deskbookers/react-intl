@@ -186,9 +186,6 @@ export function formatMessage(config, state, messageDescriptor = {}, values = {}
         defaultMessage,
     } = messageDescriptor;
 
-    // `id` is a required field of a Message Descriptor.
-    invariant(id, '[React Intl] An `id` must be provided to format a message.');
-
     const hasValues = Object.keys(values).length > 0;
 
     // Avoid expensive message formatting for simple messages without values. In
@@ -196,6 +193,8 @@ export function formatMessage(config, state, messageDescriptor = {}, values = {}
     if (!hasValues && process.env.NODE_ENV === 'production') {
         return defaultMessage || id;
     }
+
+    let formattedMessage;
 
     if (defaultMessage) {
         try {
